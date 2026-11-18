@@ -3,12 +3,15 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+#define PURPLE "\033[38;2;187;154;247m"
+#define RESET  "\033[0m"
+#define BOLD "\033[1m"
+
 void dog(const char *path) {
     // i dont want to show the huge abs path
     const char *filename = strrchr(path, '/');
     filename = filename ? filename+1 : path;
 
-    printf("\n============= %s ==============\n\n", filename);
 
     FILE *fp = fopen(path, "rb"); // rb = r for textfiles, b for binary mode
     if (!fp) {
@@ -17,9 +20,23 @@ void dog(const char *path) {
     }
     char buffer[4096];
     size_t bytes_read;
+    int is_first_chunk = 1;
 
     while((bytes_read = fread(buffer, 1, 4096, fp)))
     {
+        // checking fist 4096 bytes for null terminator
+        // goal is to ignore bin files
+        if (is_first_chunk) {
+            for (size_t i = 0; i < bytes_read; i++){
+                if(buffer[i] == '\0') {
+                    fclose(fp);
+                    return;
+                }                    
+            }
+            is_first_chunk = 0;
+        }
+
+        printf(BOLD "\n%s============= %s ==============%s\n\n", PURPLE, filename, RESET);
         fwrite(buffer, 1, bytes_read, stdout);
     }
 

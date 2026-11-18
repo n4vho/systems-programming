@@ -1,0 +1,9 @@
+Some random stuff.
+
+#include <stdio.Copyright (c) 2026 Author. All Rights Reserved.
+
+Lets see table
+Some random 14:23:01
+today my schedule looks like
+
+using namespace std;

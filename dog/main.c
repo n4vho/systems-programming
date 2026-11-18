@@ -4,20 +4,17 @@
 #include <sys/stat.h>
 
 void dog(const char *path) {
-
     // i dont want to show the huge abs path
     const char *filename = strrchr(path, '/');
     filename = filename ? filename+1 : path;
 
-
-    printf("\n============= %s ==============\n\n", path);
+    printf("\n============= %s ==============\n\n", filename);
 
     FILE *fp = fopen(path, "rb"); // rb = r for textfiles, b for binary mode
     if (!fp) {
         perror("No such file or directory");
         return;
     }
-
     char buffer[4096];
     size_t bytes_read;
 
@@ -55,8 +52,9 @@ void walk_dog (const char *path) {
 
         snprintf(full_path, sizeof(full_path), "%s/%s", path, fp->d_name);
 
-        if(fp->d_type == DT_DIR) walk_dog(full_path);
-        else dog (full_path);
+        if(fp->d_type == DT_DIR)   //if dir -> walk the dir-path
+            walk_dog(full_path);
+        else dog (full_path);      // else just print
     }
 
     closedir(dir);
@@ -73,15 +71,14 @@ int main(int argc, char *argv[])
     for (int i = 1; i < argc; i++) {
         const char* path = argv[i];
         struct stat statbuf;
-
+        
+        //check if file is a directory
         if(stat(path, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
         {
-            printf("%s\n", path);
             walk_dog(path);
         }
-
-        dog(path);
-
+        
+        else dog(path);
     }
 
     return 0;
